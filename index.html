@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StudyPlanner: плануйте навчання легко</title>
+<meta name="description" content="StudyPlanner: мобільний застосунок для студентів. Розклад, дедлайни та нагадування в одному місці.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f8fd; --surface:#ffffff; --surface2:#eaf1fb; --text:#13233d; --muted:#5b6b85;
+  --brand:#2f5d9e; --brand2:#4f8be0; --accent:#ff9a3c; --accent2:#ffb868; --ok:#2e9e6b; --bad:#d9534f;
+  --line:#d9e3f2; --shadow:0 10px 30px rgba(24,56,110,.12); --radius:18px;
+}
+[data-theme="dark"]{
+  --bg:#0c1627; --surface:#13233d; --surface2:#1a2f50; --text:#eaf1fb; --muted:#9fb3d1;
+  --brand:#6ea3f2; --brand2:#4f8be0; --line:#25405f; --shadow:0 10px 30px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Manrope,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--brand)}
+img,svg{max-width:100%}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.wrap{width:min(1120px,100% - 40px);margin-inline:auto}
+
+/* ---------- header ---------- */
+header{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;height:68px;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.2rem;color:var(--text);text-decoration:none}
+.logo i{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;font-style:normal;font-size:.9rem;letter-spacing:.5px}
+nav ul{display:flex;gap:4px;list-style:none}
+nav a{display:block;padding:8px 13px;border-radius:999px;text-decoration:none;color:var(--muted);font-weight:700;font-size:.93rem;transition:.2s}
+nav a:hover{background:var(--surface2);color:var(--text)}
+nav a.active{background:var(--brand);color:#fff}
+.tools{display:flex;gap:8px;align-items:center}
+.icon-btn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;font-size:1.05rem;display:grid;place-items:center}
+.icon-btn:hover{background:var(--surface2)}
+#burger{display:none}
+
+/* ---------- pages ---------- */
+main{flex:1}
+.page{display:none;padding:56px 0 72px;animation:fade .5s ease}
+.page.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+h1{font-size:clamp(2.2rem,5vw,3.6rem);line-height:1.1;font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(1.7rem,3.2vw,2.3rem);line-height:1.2;font-weight:800;letter-spacing:-.01em;margin-bottom:10px}
+h3{font-size:1.15rem;margin-bottom:6px}
+.lead{color:var(--muted);font-size:1.12rem;max-width:62ch}
+.eyebrow{display:inline-block;font-weight:800;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.sec-head{margin-bottom:34px}
+.grid{display:grid;gap:20px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-4px)}
+.ico{width:52px;height:52px;border-radius:15px;display:grid;place-items:center;font-size:1.6rem;margin-bottom:14px;background:var(--surface2)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:14px;border:0;font:inherit;font-weight:800;cursor:pointer;text-decoration:none;transition:.2s}
+.btn.pri{background:var(--accent);color:#2b1700;box-shadow:0 8px 20px rgba(255,154,60,.35)}
+.btn.pri:hover{transform:translateY(-2px);background:var(--accent2)}
+.btn.sec{background:var(--surface);color:var(--text);border:1px solid var(--line)}
+.btn.sec:hover{background:var(--surface2)}
+.tag{display:inline-block;padding:4px 12px;border-radius:999px;background:var(--surface2);color:var(--brand);font-weight:700;font-size:.82rem}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:-20% -10% auto auto;width:560px;height:560px;border-radius:50%;background:radial-gradient(circle,rgba(79,139,224,.35),transparent 65%);filter:blur(10px);z-index:-1;animation:float 9s ease-in-out infinite}
+@keyframes float{50%{transform:translate(-30px,30px)}}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+.hero h1 span{background:linear-gradient(90deg,var(--brand),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .lead{margin:18px 0 28px}
+.cta{display:flex;flex-wrap:wrap;gap:12px}
+.stats{display:flex;gap:30px;margin-top:36px;flex-wrap:wrap}
+.stats b{display:block;font-size:2rem;font-weight:800;color:var(--brand)}
+.stats span{color:var(--muted);font-size:.9rem}
+
+/* ---------- phone + slider ---------- */
+.phone{width:250px;margin-inline:auto;border-radius:36px;border:9px solid #101b2e;background:#101b2e;box-shadow:var(--shadow);overflow:hidden;position:relative}
+.phone::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:84px;height:18px;background:#101b2e;border-radius:0 0 14px 14px;z-index:3}
+.screen{background:#f4f7fc;color:#13233d;height:500px;padding:30px 14px 14px;font-size:.78rem;overflow:hidden}
+.screen h4{font-size:1rem;margin-bottom:10px}
+.lesson{display:flex;gap:10px;background:#fff;border-radius:12px;padding:10px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.lesson i{width:5px;border-radius:5px;flex:none}
+.lesson b{display:block;font-size:.82rem}
+.lesson small{color:#6b7a93}
+.rem{display:flex;gap:10px;align-items:center;background:#fff;border-radius:12px;padding:10px;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.rem em{font-style:normal;font-size:1.2rem}
+.rem small{display:block;color:#6b7a93}
+.rem .due{margin-left:auto;font-weight:800;font-size:.7rem;padding:3px 8px;border-radius:999px}
+.bars{display:flex;align-items:flex-end;gap:7px;height:130px;background:#fff;border-radius:12px;padding:12px;margin-bottom:10px}
+.bars div{flex:1;border-radius:6px 6px 0 0;background:linear-gradient(#4f8be0,#2f5d9e)}
+.ring{display:grid;place-items:center;background:#fff;border-radius:12px;padding:12px;margin-bottom:10px}
+.slider{position:relative;max-width:420px;margin-inline:auto}
+.track-wrap{overflow:hidden;border-radius:30px}
+.track{display:flex;transition:transform .55s cubic-bezier(.4,0,.2,1);touch-action:pan-y}
+.slide{flex:0 0 100%;padding:6px 0}
+.cap{text-align:center;margin-top:14px}
+.cap b{display:block;font-size:1.1rem}
+.cap span{color:var(--muted);font-size:.93rem}
+.arrow{position:absolute;top:44%;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;font-size:1.2rem;box-shadow:var(--shadow);z-index:5}
+.arrow.prev{left:-12px}.arrow.next{right:-12px}
+.dots{display:flex;justify-content:center;gap:8px;margin-top:14px}
+.dots button{width:10px;height:10px;border-radius:999px;border:0;background:var(--line);cursor:pointer;transition:.3s;padding:0}
+.dots button.on{width:30px;background:var(--accent)}
+
+/* ---------- about ---------- */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.compare .card.bad{border-top:5px solid var(--bad)}
+.compare .card.good{border-top:5px solid var(--ok)}
+.compare ul{list-style:none;margin-top:10px}
+.compare li{padding:7px 0 7px 28px;position:relative;border-bottom:1px dashed var(--line)}
+.compare .bad li::before{content:"✕";position:absolute;left:0;color:var(--bad);font-weight:800}
+.compare .good li::before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800}
+details.faq{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-bottom:10px}
+details.faq summary{cursor:pointer;font-weight:800;list-style:none;display:flex;justify-content:space-between;gap:10px}
+details.faq summary::after{content:"+";color:var(--accent);font-size:1.4rem;line-height:1}
+details.faq[open] summary::after{content:"−"}
+details.faq p{color:var(--muted);margin-top:10px}
+
+/* ---------- demo ---------- */
+.demo{display:grid;grid-template-columns:1.3fr .7fr;gap:20px}
+.addrow{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+input,textarea{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%}
+.addrow input[type=text]{flex:2 1 180px;width:auto}
+.addrow input[type=date]{flex:1 1 150px;width:auto}
+ul.tasks{list-style:none}
+ul.tasks li{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:var(--bg);animation:fade .3s}
+ul.tasks li.done span.t{text-decoration:line-through;color:var(--muted)}
+ul.tasks input[type=checkbox]{width:20px;height:20px;accent-color:var(--ok);flex:none}
+ul.tasks .t{flex:1}
+ul.tasks small{display:block;color:var(--muted)}
+ul.tasks .late small{color:var(--bad);font-weight:700}
+ul.tasks button{border:0;background:none;cursor:pointer;font-size:1.1rem;color:var(--muted)}
+.pct{text-align:center}
+.pct svg{width:170px;height:170px;transform:rotate(-90deg)}
+.pct .num{font-size:2.2rem;font-weight:800;margin-top:-118px;margin-bottom:84px}
+.timer{font-size:3.2rem;font-weight:800;text-align:center;letter-spacing:.03em;font-variant-numeric:tabular-nums}
+.seg{display:flex;gap:6px;justify-content:center;margin:10px 0 14px}
+.seg button{padding:7px 16px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:inherit;font-weight:700;cursor:pointer}
+.seg button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.tbtns{display:flex;gap:8px;justify-content:center}
+
+/* ---------- team ---------- */
+.member{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.avatar{width:104px;height:104px;border-radius:30px;background:linear-gradient(135deg,var(--brand),var(--accent));display:grid;place-items:center;color:#fff;font-size:2.2rem;font-weight:800}
+
+/* ---------- timeline ---------- */
+.tl{position:relative;padding-left:34px}
+.tl::before{content:"";position:absolute;left:11px;top:6px;bottom:6px;width:3px;background:linear-gradient(var(--brand),var(--accent));border-radius:3px}
+.tl details{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-bottom:14px;box-shadow:var(--shadow)}
+.tl details::before{content:attr(data-n);position:absolute;left:-34px;top:14px;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#2b1700;font-weight:800;font-size:.85rem;display:grid;place-items:center}
+.tl summary{cursor:pointer;font-weight:800;font-size:1.08rem;list-style:none}
+.tl p{color:var(--muted);margin-top:8px}
+
+/* ---------- links ---------- */
+.links a.card{display:block;text-decoration:none;color:var(--text)}
+.links a.card:hover{border-color:var(--brand)}
+.links .host{color:var(--brand);font-weight:700;font-size:.85rem}
+
+/* ---------- contact ---------- */
+.contact{display:grid;grid-template-columns:.9fr 1.1fr;gap:24px}
+form label{display:block;font-weight:700;margin:14px 0 6px}
+form .hp{position:absolute;left:-9999px}
+.msg{margin-top:14px;padding:12px 16px;border-radius:12px;background:var(--surface2);display:none}
+.msg.show{display:block}
+
+footer{border-top:1px solid var(--line);background:var(--surface);padding:26px 0;color:var(--muted);font-size:.92rem}
+footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+/* ---------- адаптивність ---------- */
+@media (max-width:900px){
+  .hero-grid,.demo,.contact,.compare{grid-template-columns:1fr}
+  .g3{grid-template-columns:1fr 1fr}
+}
+@media (max-width:760px){
+  #burger{display:grid}
+  nav{position:absolute;left:0;right:0;top:68px;background:var(--surface);border-bottom:1px solid var(--line);display:none;padding:10px 20px 16px}
+  nav.open{display:block}
+  nav ul{flex-direction:column}
+  .g3,.g2{grid-template-columns:1fr}
+  .page{padding:36px 0 56px}
+  .arrow.prev{left:4px}.arrow.next{right:4px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+noscript style{display:none}
+</style>
+<noscript><style>.page{display:block!important}</style></noscript>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="#home" aria-label="StudyPlanner, на головну"><i>SP</i>StudyPlanner</a>
+    <nav id="nav" aria-label="Головне меню">
+      <ul>
+        <li><a href="#home" data-p="home">Головна</a></li>
+        <li><a href="#about" data-p="about">Про проєкт</a></li>
+        <li><a href="#features" data-p="features">Функціонал</a></li>
+        <li><a href="#team" data-p="team">Команда</a></li>
+        <li><a href="#stages" data-p="stages">Етапи</a></li>
+        <li><a href="#gallery" data-p="gallery">Галерея</a></li>
+        <li><a href="#contacts" data-p="contacts">Контакти</a></li>
+      </ul>
+    </nav>
+    <div class="tools">
+      <button class="icon-btn" id="theme" aria-label="Змінити тему оформлення" title="Світла / темна тема">🌙</button>
+      <button class="icon-btn" id="burger" aria-label="Відкрити меню" aria-expanded="false">☰</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ================= ГОЛОВНА ================= -->
+<section class="page hero" id="p-home" data-title="Головна">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">Студентський проєкт, 2026</span>
+        <h1>Плануйте навчання <span>легко</span></h1>
+        <p class="lead">StudyPlanner об'єднує розклад занять, дедлайни завдань і нагадування в одному застосунку. Більше жодних пропущених термінів і хаосу в нотатках.</p>
+        <div class="cta">
+          <a class="btn pri" href="#about">Дізнатися більше →</a>
+          <a class="btn sec" href="#features">Спробувати демо</a>
+        </div>
+        <div class="stats">
+          <div><b data-count="3">0</b><span>ключові функції</span></div>
+          <div><b data-count="7">0</b><span>розділів на сайті</span></div>
+          <div><b data-count="4">0</b><span>етапи розробки</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="phone" aria-label="Приклад екрана застосунку">
+          <div class="screen">
+            <h4>Сьогодні</h4>
+            <div class="lesson"><i style="background:#4f8be0"></i><div><b>Математика</b><small>08:30, ауд. 214</small></div></div>
+            <div class="lesson"><i style="background:#ff9a3c"></i><div><b>Програмування</b><small>10:10, ауд. 305</small></div></div>
+            <div class="lesson"><i style="background:#2e9e6b"></i><div><b>Англійська мова</b><small>12:00, ауд. 108</small></div></div>
+            <div class="lesson"><i style="background:#9b6bd9"></i><div><b>Бази даних</b><small>14:00, ауд. 311</small></div></div>
+            <div class="rem" style="margin-top:12px"><em>⏰</em><div><b>Лабораторна №4</b><small>здати до завтра</small></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g3" style="margin-top:64px">
+      <div class="card"><div class="ico">📅</div><h3>Розклад занять</h3><p>Усі пари тижня на одному екрані. Кожен предмет має свій колір.</p></div>
+      <div class="card"><div class="ico">🔔</div><h3>Нагадування про дедлайни</h3><p>Сповіщення за день і за годину до терміну здачі.</p></div>
+      <div class="card"><div class="ico">📊</div><h3>Статистика успішності</h3><p>Графіки виконаних завдань і динаміка за тиждень.</p></div>
+    </div>
+
+    <div style="margin-top:72px">
+      <div class="sec-head" style="text-align:center"><span class="eyebrow">Слайдер</span><h2>Подивіться, як це працює</h2></div>
+      <div class="slider" data-slider>
+        <button class="arrow prev" aria-label="Попередній слайд">‹</button>
+        <button class="arrow next" aria-label="Наступний слайд">›</button>
+        <div class="track-wrap"><div class="track" id="track-home"></div></div>
+        <div class="cap"></div>
+        <div class="dots"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ПРО ПРОЄКТ ================= -->
+<section class="page" id="p-about" data-title="Про проєкт">
+  <div class="wrap">
+    <div class="sec-head"><span class="eyebrow">Про проєкт</span><h2>Навіщо потрібен StudyPlanner</h2>
+      <p class="lead">Мета проєкту: допомогти студентам краще організовувати навчальний час і не пропускати важливі терміни.</p></div>
+    <div class="compare">
+      <div class="card bad"><h3>Проблема</h3><p>Інформація розкидана по різних місцях.</p>
+        <ul><li>Розклад в одному додатку</li><li>Завдання в чатах месенджерів</li><li>Терміни здачі на папері</li><li>Легко пропустити дедлайн</li></ul></div>
+      <div class="card good"><h3>Ідея StudyPlanner</h3><p>Усе зібрано в одному застосунку.</p>
+        <ul><li>Розклад і завдання поруч</li><li>Нагадування приходять самі</li><li>Прогрес видно на графіках</li><li>Доступно з телефона завжди</li></ul></div>
+    </div>
+    <div class="grid g3" style="margin-top:20px">
+      <div class="card"><div class="ico">🎓</div><h3>Студенти</h3><p>Коледжів і університетів, які поєднують багато предметів.</p></div>
+      <div class="card"><div class="ico">🏫</div><h3>Учні старших класів</h3><p>Для підготовки до іспитів і ведення домашніх завдань.</p></div>
+      <div class="card"><div class="ico">🧑‍💻</div><h3>Всі, хто навчається</h3><p>Курси, самоосвіта, власні навчальні проєкти.</p></div>
+    </div>
+    <div class="sec-head" style="margin-top:56px"><span class="eyebrow">Запитання</span><h2>Часті запитання</h2></div>
+    <details class="faq"><summary>StudyPlanner платний?</summary><p>Це навчальний проєкт, тому всі показані функції задумані як безкоштовні.</p></details>
+    <details class="faq"><summary>Чи потрібен інтернет для роботи?</summary><p>Розклад і завдання можна переглядати без мережі. Інтернет потрібен для синхронізації між пристроями.</p></details>
+    <details class="faq"><summary>Чи можна додавати власні події?</summary><p>Так, у планувальнику можна створити будь-яку подію або завдання з терміном виконання.</p></details>
+    <details class="faq"><summary>Чи працює на комп'ютері?</summary><p>Цей сайт повністю адаптивний. Сам застосунок задуманий насамперед для смартфона.</p></details>
+  </div>
+</section>
+
+<!-- ================= ФУНКЦІОНАЛ ================= -->
+<section class="page" id="p-features" data-title="Функціонал">
+  <div class="wrap">
+    <div class="sec-head"><span class="eyebrow">Функціонал</span><h2>Що вміє StudyPlanner</h2>
+      <p class="lead">Нижче можна спробувати спрощену версію планувальника та таймер для концентрації прямо на сайті.</p></div>
+    <div class="grid g3">
+      <div class="card"><div class="ico">📅</div><h3>Планувальник</h3><p>Розклад на день і тиждень, власні події, різні кольори для предметів.</p></div>
+      <div class="card"><div class="ico">🔔</div><h3>Нагадування</h3><p>Сповіщення про дедлайни та заняття, гнучке налаштування часу.</p></div>
+      <div class="card"><div class="ico">📊</div><h3>Статистика</h3><p>Виконані й прострочені завдання, тижневі звіти успішності.</p></div>
+    </div>
+
+    <div class="sec-head" style="margin-top:56px"><span class="eyebrow">Інтерактивне демо</span><h2>Мої завдання</h2></div>
+    <div class="demo">
+      <div class="card">
+        <form class="addrow" id="addForm">
+          <input type="text" id="tTitle" placeholder="Нове завдання, наприклад: реферат" aria-label="Назва завдання" maxlength="60" required>
+          <input type="date" id="tDate" aria-label="Термін виконання" required>
+          <button class="btn pri" type="submit">Додати</button>
+        </form>
+        <ul class="tasks" id="tasks"></ul>
+        <p id="emptyMsg" style="color:var(--muted);display:none">Завдань немає. Додайте перше!</p>
+      </div>
+      <div class="card pct">
+        <h3>Прогрес</h3>
+        <svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--line)" stroke-width="12"/><circle id="arc" cx="60" cy="60" r="52" fill="none" stroke="var(--ok)" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" style="transition:stroke-dashoffset .6s"/></svg>
+        <div class="num" id="pctNum">0%</div>
+        <p id="pctTxt" style="color:var(--muted)"></p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;max-width:520px;margin-inline:auto">
+      <h3 style="text-align:center">Таймер Pomodoro</h3>
+      <p style="text-align:center;color:var(--muted);font-size:.93rem">25 хвилин роботи, потім 5 хвилин відпочинку. Простий спосіб не втрачати концентрацію.</p>
+      <div class="seg" role="group" aria-label="Режим таймера">
+        <button class="on" data-m="25">Фокус 25</button>
+        <button data-m="5">Перерва 5</button>
+        <button data-m="15">Довга 15</button>
+      </div>
+      <div class="timer" id="timer" aria-live="off">25:00</div>
+      <div class="tbtns" style="margin-top:14px">
+        <button class="btn pri" id="tStart">Старт</button>
+        <button class="btn sec" id="tReset">Скинути</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= КОМАНДА ================= -->
+<section class="page" id="p-team" data-title="Команда">
+  <div class="wrap">
+    <div class="sec-head"><span class="eyebrow">Команда</span><h2>Команда проєкту</h2><p class="lead">Над StudyPlanner працює студентка групи 22-ІП.</p></div>
+    <div class="card member">
+      <div class="avatar" aria-hidden="true">ЮШ</div>
+      <div style="flex:1;min-width:240px">
+        <h3 style="font-size:1.4rem">Штемпель Юлія Михайлівна</h3>
+        <p style="color:var(--brand);font-weight:700;margin-bottom:8px">Авторка проєкту · група 22-ІП</p>
+        <p>Автор ідеї, планування функціоналу застосунку, проєктування інтерфейсу та створення цього сайту.</p>
+        <p style="margin-top:12px"><span class="tag">Ідея</span> <span class="tag">Дизайн</span> <span class="tag">Вебсайт</span></p>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:20px">
+      <div class="card"><div class="ico">💡</div><h3>Ідея</h3><p>Вирішити реальну проблему, з якою щодня стикається кожен студент.</p></div>
+      <div class="card"><div class="ico">🎨</div><h3>Дизайн</h3><p>Чисті екрани без зайвого, щоб потрібне знаходилось за секунду.</p></div>
+      <div class="card"><div class="ico">🚀</div><h3>Розвиток</h3><p>Далі: синхронізація, спільні групові проєкти, темна тема.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ЕТАПИ ================= -->
+<section class="page" id="p-stages" data-title="Етапи розробки">
+  <div class="wrap">
+    <div class="sec-head"><span class="eyebrow">Етапи розробки</span><h2>Як створювався проєкт</h2><p class="lead">Натисніть на етап, щоб прочитати подробиці.</p></div>
+    <div class="tl">
+      <details data-n="1" open><summary>Аналіз</summary><p>Вивчення потреб студентів, пошук типових проблем із плануванням та збір вимог до застосунку.</p></details>
+      <details data-n="2"><summary>Проєктування</summary><p>Розробка схем екранів, структури застосунку та візуального стилю: кольорів, шрифтів, іконок.</p></details>
+      <details data-n="3"><summary>Розробка</summary><p>Створення прототипу основних функцій: розкладу, нагадувань і статистики.</p></details>
+      <details data-n="4"><summary>Тестування</summary><p>Перевірка на користувачах, збір відгуків і доопрацювання інтерфейсу.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ГАЛЕРЕЯ ================= -->
+<section class="page" id="p-gallery" data-title="Галерея">
+  <div class="wrap">
+    <div class="sec-head" style="text-align:center"><span class="eyebrow">Галерея</span><h2>Екрани застосунку</h2><p class="lead" style="margin-inline:auto">Гортайте слайди стрілками, свайпом або клавішами ← →.</p></div>
+    <div class="slider" data-slider>
+      <button class="arrow prev" aria-label="Попередній слайд">‹</button>
+      <button class="arrow next" aria-label="Наступний слайд">›</button>
+      <div class="track-wrap"><div class="track" id="track-gal"></div></div>
+      <div class="cap"></div>
+      <div class="dots"></div>
+    </div>
+
+    <div class="sec-head" style="margin-top:72px"><span class="eyebrow">Корисні посилання</span><h2>Інструменти й ресурси для навчання</h2></div>
+    <div class="grid g3 links">
+      <a class="card" href="https://calendar.google.com" target="_blank" rel="noopener"><div class="ico">🗓️</div><h3>Google Календар</h3><p>Класичний календар для подій і розкладу.</p><span class="host">calendar.google.com ↗</span></a>
+      <a class="card" href="https://trello.com" target="_blank" rel="noopener"><div class="ico">🗂️</div><h3>Trello</h3><p>Дошки з картками для групових проєктів.</p><span class="host">trello.com ↗</span></a>
+      <a class="card" href="https://www.notion.so" target="_blank" rel="noopener"><div class="ico">📝</div><h3>Notion</h3><p>Нотатки, бази знань і таблиці в одному місці.</p><span class="host">notion.so ↗</span></a>
+      <a class="card" href="https://osvita.diia.gov.ua" target="_blank" rel="noopener"><div class="ico">🇺🇦</div><h3>Дія.Освіта</h3><p>Безкоштовні освітні серіали та курси українською.</p><span class="host">osvita.diia.gov.ua ↗</span></a>
+      <a class="card" href="https://prometheus.org.ua" target="_blank" rel="noopener"><div class="ico">🎓</div><h3>Prometheus</h3><p>Онлайн-курси від українських і світових викладачів.</p><span class="host">prometheus.org.ua ↗</span></a>
+      <a class="card" href="https://www.khanacademy.org" target="_blank" rel="noopener"><div class="ico">📚</div><h3>Khan Academy</h3><p>Безкоштовні уроки з математики, програмування та науки.</p><span class="host">khanacademy.org ↗</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= КОНТАКТИ ================= -->
+<section class="page" id="p-contacts" data-title="Контакти">
+  <div class="wrap">
+    <div class="sec-head"><span class="eyebrow">Контакти</span><h2>Зв'язатися з нами</h2><p class="lead">Маєте запитання або пропозиції? Напишіть нам.</p></div>
+    <div class="contact">
+      <div class="card">
+        <div class="ico">✉️</div><h3>Електронна пошта</h3>
+        <p><a id="mailLink" href="#">ВАША_ПОШТА@gmail.com</a></p>
+        <div class="ico" style="margin-top:20px">🎓</div><h3>Автор</h3>
+        <p>Штемпель Юлія Михайлівна<br>Група 22-ІП</p>
+      </div>
+      <div class="card">
+        <form id="cform" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+          <input type="hidden" name="form-name" value="contact">
+          <p class="hp"><label>Не заповнюйте: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+          <label for="cn">Ім'я</label><input id="cn" name="name" required autocomplete="name">
+          <label for="ce">E-mail</label><input id="ce" name="email" type="email" required autocomplete="email">
+          <label for="cm">Повідомлення</label><textarea id="cm" name="message" rows="5" required></textarea>
+          <button class="btn pri" type="submit" style="margin-top:16px">Надіслати</button>
+          <div class="msg" id="cmsg" role="status"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 StudyPlanner. Штемпель Юлія Михайлівна, група 22-ІП</span>
+    <span>Навчальний проєкт</span>
+  </div>
+</footer>
+
+<script>
+/* ============ ВАЖЛИВО: впишіть свою пошту тут ============ */
+const CONTACT_EMAIL = "ВАША_ПОШТА@gmail.com";
+/* ========================================================== */
+
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const safe = (fn, d) => { try { return fn(); } catch(e) { return d; } };
+
+/* ---------- пошта ---------- */
+const mail = $("#mailLink");
+mail.textContent = CONTACT_EMAIL;
+mail.href = "mailto:" + CONTACT_EMAIL;
+
+/* ---------- маршрутизація сторінок ---------- */
+const pages = $$(".page");
+function route(){
+  let id = (location.hash || "#home").slice(1);
+  if(!$("#p-" + id)) id = "home";
+  pages.forEach(p => p.classList.toggle("on", p.id === "p-" + id));
+  $$("nav a").forEach(a => a.classList.toggle("active", a.dataset.p === id));
+  document.title = (id === "home" ? "StudyPlanner: плануйте навчання легко" : $("#p-" + id).dataset.title + " | StudyPlanner");
+  $("#nav").classList.remove("open");
+  $("#burger").setAttribute("aria-expanded", "false");
+  window.scrollTo({top:0, behavior:"auto"});
+  if(id === "home") countUp();
+}
+addEventListener("hashchange", route);
+
+/* ---------- меню та тема ---------- */
+$("#burger").onclick = () => {
+  const o = $("#nav").classList.toggle("open");
+  $("#burger").setAttribute("aria-expanded", o);
+};
+function setTheme(t){
+  document.documentElement.dataset.theme = t;
+  $("#theme").textContent = t === "dark" ? "☀️" : "🌙";
+  safe(() => localStorage.setItem("sp-theme", t));
+}
+setTheme(safe(() => localStorage.getItem("sp-theme")) || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+$("#theme").onclick = () => setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+
+/* ---------- лічильники ---------- */
+let counted = false;
+function countUp(){
+  if(counted) return;
+  counted = true;
+  $$("[data-count]").forEach(el => {
+    const end = +el.dataset.count, t0 = performance.now(), dur = 900;
+    (function step(now){
+      const k = Math.min(1, (now - t0) / dur);
+      el.textContent = Math.round(end * k);
+      if(k < 1) requestAnimationFrame(step); else el.textContent = end;
+    })(t0);
+  });
+}
+
+/* ---------- екрани застосунку для слайдера ---------- */
+const SCREENS = [
+ {t:"Розклад", d:"Усі заняття дня з аудиторіями та часом", html:`
+  <h4>Розклад: сьогодні</h4>
+  <div class="lesson"><i style="background:#4f8be0"></i><div><b>Математика</b><small>08:30, ауд. 214</small></div></div>
+  <div class="lesson"><i style="background:#ff9a3c"></i><div><b>Програмування</b><small>10:10, ауд. 305</small></div></div>
+  <div class="lesson"><i style="background:#2e9e6b"></i><div><b>Англійська мова</b><small>12:00, ауд. 108</small></div></div>
+  <div class="lesson"><i style="background:#9b6bd9"></i><div><b>Бази даних</b><small>14:00, ауд. 311</small></div></div>
+  <div class="lesson"><i style="background:#d9534f"></i><div><b>Фізкультура</b><small>15:40, спортзал</small></div></div>`},
+ {t:"Нагадування", d:"Дедлайни, які не дадуть вас підвести", html:`
+  <h4>Нагадування</h4>
+  <div class="rem"><em>🔥</em><div><b>Лабораторна №4</b><small>Програмування</small></div><span class="due" style="background:#fde2e1;color:#b3342f">завтра</span></div>
+  <div class="rem"><em>📝</em><div><b>Реферат</b><small>Історія України</small></div><span class="due" style="background:#fff0dc;color:#a35b06">3 дні</span></div>
+  <div class="rem"><em>🧪</em><div><b>Контрольна</b><small>Математика</small></div><span class="due" style="background:#fff0dc;color:#a35b06">4 дні</span></div>
+  <div class="rem"><em>🚀</em><div><b>Проєкт StudyPlanner</b><small>Захист</small></div><span class="due" style="background:#e2f5ec;color:#1f7a50">5 днів</span></div>
+  <div class="rem"><em>📖</em><div><b>Прочитати розділ 5</b><small>Бази даних</small></div><span class="due" style="background:#e2f5ec;color:#1f7a50">тиждень</span></div>`},
+ {t:"Статистика", d:"Ваш прогрес за тиждень на одному графіку", html:`
+  <h4>Статистика тижня</h4>
+  <div class="bars"><div style="height:45%"></div><div style="height:70%"></div><div style="height:55%"></div><div style="height:90%"></div><div style="height:65%"></div><div style="height:35%"></div><div style="height:80%"></div></div>
+  <div style="display:flex;justify-content:space-between;color:#6b7a93;font-size:.68rem;margin:-4px 6px 10px"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Нд</span></div>
+  <div class="ring"><svg width="100" height="100" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="#e1e8f3" stroke-width="14"/><circle cx="60" cy="60" r="50" fill="none" stroke="#2e9e6b" stroke-width="14" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="69" transform="rotate(-90 60 60)"/><text x="60" y="68" text-anchor="middle" font-size="26" font-weight="800" fill="#13233d">78%</text></svg><small style="color:#6b7a93">завдань виконано</small></div>`},
+ {t:"Фокус", d:"Режим концентрації для навчання", html:`
+  <h4>Режим фокусу</h4>
+  <div class="ring" style="padding:30px 12px"><svg width="150" height="150" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="#e1e8f3" stroke-width="10"/><circle cx="60" cy="60" r="50" fill="none" stroke="#ff9a3c" stroke-width="10" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="110" transform="rotate(-90 60 60)"/><text x="60" y="68" text-anchor="middle" font-size="24" font-weight="800" fill="#13233d">16:12</text></svg></div>
+  <div class="rem"><em>🎯</em><div><b>Зараз: Реферат</b><small>Історія України</small></div></div>
+  <div class="rem"><em>☕</em><div><b>Далі: перерва 5 хв</b><small>Пити воду й розім'ятися</small></div></div>`}
+];
+function buildTrack(id){
+  $("#" + id).innerHTML = SCREENS.map(s => `<div class="slide"><div class="phone"><div class="screen">${s.html}</div></div></div>`).join("");
+}
+buildTrack("track-home"); buildTrack("track-gal");
+
+/* ---------- слайдер ---------- */
+function initSlider(root){
+  const track = $(".track", root), n = SCREENS.length, dots = $(".dots", root), cap = $(".cap", root);
+  let i = 0, timer = null;
+  dots.innerHTML = SCREENS.map((s,k) => `<button aria-label="Слайд ${k+1}"></button>`).join("");
+  const db = $$("button", dots);
+  function go(k){
+    i = (k + n) % n;
+    track.style.transform = `translateX(${-i * 100}%)`;
+    db.forEach((b,x) => b.classList.toggle("on", x === i));
+    cap.innerHTML = `<b>${SCREENS[i].t}</b><span>${SCREENS[i].d}</span>`;
+  }
+  db.forEach((b,k) => b.onclick = () => { go(k); restart(); });
+  $(".prev", root).onclick = () => { go(i - 1); restart(); };
+  $(".next", root).onclick = () => { go(i + 1); restart(); };
+  function restart(){ clearInterval(timer); timer = setInterval(() => { if(root.offsetParent) go(i + 1); }, 5000); }
+  root.addEventListener("mouseenter", () => clearInterval(timer));
+  root.addEventListener("mouseleave", restart);
+  let x0 = null;
+  track.addEventListener("pointerdown", e => x0 = e.clientX);
+  addEventListener("pointerup", e => { if(x0 === null) return; const dx = e.clientX - x0; x0 = null; if(Math.abs(dx) > 40 && root.offsetParent){ go(i + (dx < 0 ? 1 : -1)); restart(); } });
+  addEventListener("keydown", e => { if(!root.offsetParent) return; if(e.key === "ArrowLeft"){ go(i - 1); restart(); } if(e.key === "ArrowRight"){ go(i + 1); restart(); } });
+  go(0); restart();
+}
+$$("[data-slider]").forEach(initSlider);
+
+/* ---------- планувальник завдань ---------- */
+const iso = d => { const z = new Date(d); z.setMinutes(z.getMinutes() - z.getTimezoneOffset()); return z.toISOString().slice(0,10); };
+const plus = n => { const d = new Date(); d.setDate(d.getDate() + n); return iso(d); };
+let tasks = safe(() => JSON.parse(localStorage.getItem("sp-tasks")), null) || [
+  {id:1, t:"Лабораторна №4 з програмування", d:plus(1), done:false},
+  {id:2, t:"Реферат з історії України", d:plus(3), done:false},
+  {id:3, t:"Підготувати презентацію проєкту", d:plus(5), done:true}
+];
+const save = () => safe(() => localStorage.setItem("sp-tasks", JSON.stringify(tasks)));
+const esc = s => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function fmtDate(d){ return new Date(d + "T00:00").toLocaleDateString("uk-UA", {day:"numeric", month:"long"}); }
+function renderTasks(){
+  const list = $("#tasks"), today = iso(new Date());
+  tasks.sort((a,b) => a.done - b.done || a.d.localeCompare(b.d));
+  list.innerHTML = tasks.map(t => {
+    const late = !t.done && t.d < today;
+    return `<li class="${t.done ? "done" : ""} ${late ? "late" : ""}">
+      <input type="checkbox" data-id="${t.id}" ${t.done ? "checked" : ""} aria-label="Виконано: ${esc(t.t)}">
+      <div class="t"><span class="t">${esc(t.t)}</span><small>${late ? "Прострочено: " : "До "}${fmtDate(t.d)}</small></div>
+      <button data-del="${t.id}" aria-label="Видалити завдання" title="Видалити">🗑️</button></li>`;
+  }).join("");
+  $("#emptyMsg").style.display = tasks.length ? "none" : "block";
+  const done = tasks.filter(t => t.done).length, p = tasks.length ? Math.round(done / tasks.length * 100) : 0;
+  $("#arc").style.strokeDashoffset = 326.7 * (1 - p / 100);
+  $("#pctNum").textContent = p + "%";
+  $("#pctTxt").textContent = tasks.length ? `Виконано ${done} із ${tasks.length}` : "";
+}
+$("#tDate").value = plus(2);
+$("#addForm").onsubmit = e => {
+  e.preventDefault();
+  const t = $("#tTitle").value.trim(); if(!t) return;
+  tasks.push({id:Date.now(), t, d:$("#tDate").value, done:false});
+  $("#tTitle").value = ""; save(); renderTasks();
+};
+$("#tasks").addEventListener("click", e => {
+  const c = e.target.closest("[data-id]"), d = e.target.closest("[data-del]");
+  if(c){ const t = tasks.find(x => x.id == c.dataset.id); t.done = c.checked; save(); renderTasks(); }
+  if(d){ tasks = tasks.filter(x => x.id != d.dataset.del); save(); renderTasks(); }
+});
+renderTasks();
+
+/* ---------- таймер Pomodoro ---------- */
+let mins = 25, left = 25 * 60, tick = null;
+const showT = () => { $("#timer").textContent = String(Math.floor(left / 60)).padStart(2,"0") + ":" + String(left % 60).padStart(2,"0"); };
+function stopT(){ clearInterval(tick); tick = null; $("#tStart").textContent = "Старт"; }
+$("#tStart").onclick = () => {
+  if(tick){ stopT(); return; }
+  $("#tStart").textContent = "Пауза";
+  tick = setInterval(() => {
+    left--; showT();
+    if(left <= 0){ stopT(); $("#timer").textContent = "Готово!"; }
+  }, 1000);
+};
+$("#tReset").onclick = () => { stopT(); left = mins * 60; showT(); };
+$$(".seg button").forEach(b => b.onclick = () => {
+  $$(".seg button").forEach(x => x.classList.remove("on")); b.classList.add("on");
+  mins = +b.dataset.m; stopT(); left = mins * 60; showT();
+});
+
+/* ---------- форма контактів ---------- */
+$("#cform").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = e.target, box = $("#cmsg"); box.className = "msg show";
+  const body = new URLSearchParams(new FormData(f)).toString();
+  try{
+    const r = await fetch("/", {method:"POST", headers:{"Content-Type":"application/x-www-form-urlencoded"}, body});
+    if(!r.ok) throw 0;
+    box.textContent = "Дякуємо! Повідомлення надіслано.";
+    f.reset();
+  }catch(err){
+    const s = encodeURIComponent("Повідомлення з сайту StudyPlanner");
+    const b = encodeURIComponent(`${f.elements.name.value} (${f.elements.email.value}):\n\n${f.elements.message.value}`);
+    box.innerHTML = `Форма працює лише після публікації на сайті. Натомість <a href="mailto:${CONTACT_EMAIL}?subject=${s}&body=${b}">надішліть лист електронною поштою</a>.`;
+  }
+});
+
+route();
+</script>
+</body>
+</html>
